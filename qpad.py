@@ -33,7 +33,7 @@ class QPad(QtWidgets.QLabel):
         painter.setBrush(self.h_brush)
         painter.setPen(self.h_pen)
         self.rect = event.rect()
-        painter.drawText(event.rect(),QtCore.Qt.AlignCenter,'T')
+        #painter.drawText(event.rect(),QtCore.Qt.AlignCenter,'T')
         if False :
             #not self.app.show_key_editor.isChecked():
             painter.drawEllipse(event.rect())
@@ -104,6 +104,7 @@ class QPad(QtWidgets.QLabel):
         )
         if self.app.show_key_editor.isChecked() and not is_modifier_key :
             self.app.keymap_map[f"{self.index}"].append(str(e.key()))
+            self.app.edi.labels[f"label_{self.index}"].setText(key)
 
     def mouseReleaseEvent(self, e):
         self.unpressed_it()

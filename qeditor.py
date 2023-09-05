@@ -2,7 +2,7 @@ from PySide2 import QtWidgets, QtCore, QtGui
 
 from pathlib import Path
 
-class QEditor(QtWidgets.QLabel):
+class QEditor(QtWidgets.QWidget):
 
     def __init__(self, application, parent=None):
         super(QEditor, self).__init__(parent=parent)
@@ -14,11 +14,13 @@ class QEditor(QtWidgets.QLabel):
         self.w_pen = QtGui.QPen(self.w_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.b_pen = QtGui.QPen(self.b_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.h_pen = QtGui.QPen(self.h_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
-        self.rect_deco = QtCore.QRect(10,10,400,400)
+        
         self.font_label = QtGui.QFont()
         self.create_fields()
         self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
         self.grabKeyboard()
+        self.setFixedSize(866, 688+self.app.menuBar().height())
+        #self.move(0,self.app.menuBar().size().height())
 
     def create_fields(self):
         self.labels = {f"label_{i}": "" for i in range(16)}
@@ -31,7 +33,7 @@ class QEditor(QtWidgets.QLabel):
             self.font_label.setPixelSize(50)
             self.labels[i].setFont(self.font_label)
             #self.fields = QtWidgets.QLineEdit(self)
-            self.labels[i].move(170+172*(buttons.index%4),100+172*(buttons.index%4))
+            self.labels[i].move(158 + (172 * (buttons.index % 4)), 80 + (172 * (int(buttons.index / 4))))
 
     def paintEvent(self, event: QtGui.QPaintEvent):
         super().paintEvent(event)
@@ -67,4 +69,4 @@ class QEditor(QtWidgets.QLabel):
 
     def sizeHint(self):
         print("default sizeHint: ", super(QEditor, self).sizeHint())
-        return QtCore.QSize(640, 480)
+        return QtCore.QSize(866, 688+self.app.menuBar().height())
