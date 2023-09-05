@@ -12,7 +12,6 @@ class QPad(QtWidgets.QLabel):
         self.maximumSize = (172, 172)
         self.minimumSize = (172, 172)
         self.setFrameStyle(0)
-        #self.setPixmap(self.app.pixmaps_on[self.index])
         self.w_brush = QtGui.QBrush(QtGui.QColor(200, 200, 200, 255))
         self.b_brush = QtGui.QBrush(QtGui.QColor(10, 10, 10, 255))
         self.h_brush = QtGui.QBrush(QtGui.QColor(100, 100, 200, 100))
@@ -20,13 +19,7 @@ class QPad(QtWidgets.QLabel):
         self.w_pen = QtGui.QPen(self.w_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.b_pen = QtGui.QPen(self.b_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.h_pen = QtGui.QPen(self.h_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
-        self.rect_deco = QtCore.QRect(10,10,400,400)
-        #self.setAcceptDrops(True)
-        #self.index = 0
-        #self.maximumSize = (172, 172)
-        #self.minimumSize = (172, 172)
-        #self.setFrameStyle(0)
-        #self.setPixmap(self.app.pixmaps_on[self.index])
+        self.rect = QtCore.QRect(10,10,400,400)
 
     def paintEvent(self, event: QtGui.QPaintEvent):
         super().paintEvent(event)
@@ -39,6 +32,7 @@ class QPad(QtWidgets.QLabel):
         #with QtGui.QPainter(self) as painter:
         painter.setBrush(self.h_brush)
         painter.setPen(self.h_pen)
+        self.rect = event.rect()
         painter.drawText(event.rect(),QtCore.Qt.AlignCenter,'T')
         if False :
             #not self.app.show_key_editor.isChecked():

@@ -15,19 +15,23 @@ class QEditor(QtWidgets.QLabel):
         self.b_pen = QtGui.QPen(self.b_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.h_pen = QtGui.QPen(self.h_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.rect_deco = QtCore.QRect(10,10,400,400)
-        self.font_klabel = QtGui.QFont()
+        self.font_label = QtGui.QFont()
         self.create_fields()
         self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
         self.grabKeyboard()
 
     def create_fields(self):
-        self.label_0 = QtWidgets.QLabel("A",self)
-        self.label_0.setProperty("keymap","on")
-        self.font_klabel.setBold(True)
-        self.font_klabel.setPixelSize(50)
-        self.label_0.setFont(self.font_klabel)
-        #self.fields = QtWidgets.QLineEdit(self)
-        self.label_0.move(170,100)
+        self.labels = {f"label_{i}": "" for i in range(16)}
+        for buttons in self.app.buttons:
+            i = f"label_{buttons.index}"
+            self.labels[i] = QtWidgets.QLabel("A",self)    
+            self.label_0 = QtWidgets.QLabel("A",self)
+            self.labels[i].setProperty("keymap","on")
+            self.font_label.setBold(True)
+            self.font_label.setPixelSize(50)
+            self.labels[i].setFont(self.font_label)
+            #self.fields = QtWidgets.QLineEdit(self)
+            self.labels[i].move(170+172*(buttons.index%4),100+172*(buttons.index%4))
 
     def paintEvent(self, event: QtGui.QPaintEvent):
         super().paintEvent(event)

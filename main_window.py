@@ -21,15 +21,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.dir = Path(str(__file__)).parent
         self.styled = open(f"{self.dir.joinpath('style.css')}").read()
         self.pad = SamplePlayer()
-        self.edi = QEditor(self)
+        
         self.background = QLabel()
         self.app = self.application = application
         self.title = "Carbonpad"
         self.setWindowTitle(self.title)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.keymap_map = {str(k): [] for k in range(16)}
-        #dict(zip([str(x) for x in range(16)],[[str(x) for x in range(16)],[str(x) for x in range(16)]]))
-        print(self.keymap_map)
         self.w_table = QtWidgets.QTableWidget(4,4)
         self.w_table.horizontalHeader().hide()
         self.w_table.verticalHeader().hide()
@@ -48,24 +46,26 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.background.setParent(self)
         self.w_table.setParent(self)
-        self.edi.setParent(self)
-        self.edi.hide()
+
         self.set_top_menu()
         self.place_buttons()
         self.background.setSizePolicy(QtWidgets.QSizePolicy.Policy(QtWidgets.QSizePolicy.Ignored),QtWidgets.QSizePolicy.Policy(QtWidgets.QSizePolicy.Ignored))
         self.adjustSize()
         self.resize(866, 688)
-        #self.w_table.move(89,0)
-        
         self.setFixedSize(866, 688+self.menuBar().height())
+        
         self.w_table.setGeometry(89, self.menuBar().height(), 688, 688)
         self.background.setGeometry(0, self.menuBar().height(), 866, 688)
         #self.w_table.clicked[QtCore.QModelIndex].connect(self.widget_click)
         self.set_the_palette([self.w_table,])
         self.w_table.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
         self.w_table.clearSelection()
+        self.edi = QEditor(self)
+        self.edi.setParent(self)
+        self.edi.hide()
         self.set_shadows([self.menuBar(),self.refresh_midi,self.op_group,self.channel_selector,self.hide_status_bar_checkbox,self.midilist,self.channel_label])
         self.setStyleSheet(self.styled)
+
         #self.set_blur([self.w_table,self.background])
 
     def set_shadows(self, attr_list):
