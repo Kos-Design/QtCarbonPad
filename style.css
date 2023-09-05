@@ -1,0 +1,99 @@
+QTableWidget {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0); 
+    background-repeat: no-repeat;
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QLabel[keymap="on"]{
+    color:chocolate;
+}
+QTableWidget:item::selected {
+    
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QTableWidget::cellPressed {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QTableWidget::cellEntered {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QTableWidget::cellClicked {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QTableWidget::cellChanged {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QTableWidget::cellActivated {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+
+QTableWidget:item {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QTableWidget:cellWidget {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QPad {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QLabel {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QLabel::selected {
+    background-color: rgba(10, 200, 10, 0);
+    background: rgba(10, 200, 10, 0);
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QGroupBox{
+    border:0px none;
+    padding: 0px;
+    margin: 0px
+}
+QGridLayout {
+    padding: 0px;
+    margin: 0px
+}
