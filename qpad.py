@@ -67,7 +67,6 @@ class QPad(QtWidgets.QLabel):
                 event.ignore()
 
         event.accept()
-   
 
     def dropEvent(self, event):
         """
@@ -104,7 +103,8 @@ class QPad(QtWidgets.QLabel):
         )
         if self.app.show_key_editor.isChecked() and not is_modifier_key :
             self.app.keymap_map[f"{self.index}"].append(str(e.key()))
-            self.app.edi.labels[f"label_{self.index}"].setText(key)
+            #self.app.edi.labels[f"label_{self.index}"].setText(key)
+            self.app.edi.update_labels()
 
     def mouseReleaseEvent(self, e):
         self.unpressed_it()

@@ -7,7 +7,7 @@ QTableWidget {
     margin: 0px
 }
 QLabel[keymap="on"]{
-    color:chocolate;
+    color: white;
 }
 QTableWidget:item::selected {
     

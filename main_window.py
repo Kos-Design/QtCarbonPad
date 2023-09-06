@@ -83,9 +83,9 @@ class MainWindow(QtWidgets.QMainWindow):
             #effect.blurRadius
             #effect.setColor(QtGui.QColor(16, 16, 16, 64))
             attr.setGraphicsEffect(effect)
-            self.animate_prop(effect,((blur-50)*(blur-50))**0.5,blur)
+            self.animate_prop(effect,((blur-15)*(blur-15))**0.5,blur)
 
-    def animate_prop(self,prop,start=0,end=50):
+    def animate_prop(self,prop,start=0,end=15):
         self.anim = QtCore.QPropertyAnimation(prop,b'blurRadius')
         self.anim.setEasingCurve(QtCore.QEasingCurve.OutCubic) if start == 0 else self.anim.setEasingCurve(QtCore.QEasingCurve.InCubic)
         
@@ -203,7 +203,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.activate_midi_out = QCheckBox("Send Midi Out")
         self.show_key_editor = QCheckBox("Show Keymap Editor")
         self.show_key_editor.stateChanged.connect(self.key_editor)
-        self.option_window = QMainWindow(self)
+        self.option_window = QMainWindow()
         self.hide_status_bar_checkbox = QCheckBox("Hide Status Bar")
         self.hide_status_bar_checkbox.stateChanged.connect(self.show_status_bar)
         self.op_glay = QGridLayout()
@@ -264,11 +264,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pad.loadbank()
     
     def key_editor(self):
-        self.set_blur([self.w_table,],50*int(self.show_key_editor.isChecked()))
+        self.set_blur([self.w_table,],15*int(self.show_key_editor.isChecked()))
         if self.show_key_editor.isChecked():
             self.edi.show()
             self.releaseKeyboard()
-            #self.edi.grabKeyboard()
+            self.edi.update()
+            
         else :
             self.edi.hide()
             self.grabKeyboard()
