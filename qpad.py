@@ -15,11 +15,12 @@ class QPad(QtWidgets.QLabel):
         self.w_brush = QtGui.QBrush(QtGui.QColor(200, 200, 200, 255))
         self.b_brush = QtGui.QBrush(QtGui.QColor(10, 10, 10, 255))
         self.h_brush = QtGui.QBrush(QtGui.QColor(100, 100, 200, 100))
-
+        self.editing = False
         self.w_pen = QtGui.QPen(self.w_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.b_pen = QtGui.QPen(self.b_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.h_pen = QtGui.QPen(self.h_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.rect = QtCore.QRect(10,10,400,400)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
     def paintEvent(self, event: QtGui.QPaintEvent):
         super().paintEvent(event)
@@ -81,8 +82,8 @@ class QPad(QtWidgets.QLabel):
         self.app.statusBar().showMessage(f"Sample {Path(next(iter(_files))).name} assigned to Pad n°{self.index}")
 
     def mousePressEvent(self, e):
-        if self.app.show_key_editor.isChecked():
-            self.capture_keyboard()
+        if self.app.option_window.show_key_editor.isChecked():
+            self.editing = True
         self.pressed_it()
         #self.app.w_table.clearSelection()
     
@@ -92,20 +93,19 @@ class QPad(QtWidgets.QLabel):
     
     def unpressed_it(self):
         self.setPixmap(self.app.pixmaps_on[self.index])
-
-    def capture_keyboard (self):
-        self.grabKeyboard()
-     
+    """
     def keyPressEvent(self, e):
         key = QtGui.QKeySequence(e.key()).toString()
         is_modifier_key = ( e.modifiers() & (QtCore.Qt.ShiftModifier | QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier)
             and not e.isAutoRepeat()
         )
-        if self.app.show_key_editor.isChecked() and not is_modifier_key :
+        if self.app.option_window.show_key_editor.isChecked() and not is_modifier_key :
             self.app.keymap_map[f"{self.index}"].append(str(e.key()))
             #self.app.edi.labels[f"label_{self.index}"].setText(key)
             self.app.edi.update_labels()
-
+            #self.releaseKeyboard()
+            #self.app.grabKeyboard()
+    """
     def mouseReleaseEvent(self, e):
         self.unpressed_it()
     

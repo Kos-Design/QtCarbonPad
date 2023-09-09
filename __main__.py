@@ -11,9 +11,7 @@ class CarbonPad:
         QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
         self.pyside_app = QApplication(sys.argv)
         self.main_window = MainWindow(application=self)
-        #self.option_window = self.main_window.option_window
-        
-
+       
     def run(self):
         self.main_window.show()
         return (self.pyside_app.exec_())

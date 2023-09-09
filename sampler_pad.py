@@ -64,7 +64,6 @@ class SamplePlayer():
         return notes[number % 12]
 
     def readInput(self,input_device):
-        # print("pooling")
         clock = pygame.time.Clock()
         # while True:
         if input_device.poll():
@@ -73,7 +72,6 @@ class SamplePlayer():
             data = event[0]
 
             lemessagemidi, channel = rtmidi2.splitchannel(data[0])
-            # print(lemessagemidi)
             timestamp = event[1]
             note_number = data[1]
             velocity = data[2]
@@ -153,12 +151,8 @@ class SamplePlayer():
         listoutdevices()
         """ handle item selected event
         """
-        # get selected indices
         selected_indices = listbox.curselection()
-        # get selected items
-        # selected_langs = ",".join([listbox.get(i) for i in selected_indices])
         if currentmididevice != selected_indices[0]:
-            #print(selected_indices[0])
             currentmididevice = selected_indices[0]
         if pygame.midi.get_device_info(selected_indices[0])[2] == 1:
             msg = f'You selected: {selected_indices[0]}'
