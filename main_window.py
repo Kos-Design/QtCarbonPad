@@ -13,7 +13,6 @@ import json
 import itertools
 from qpad import QPad
 from qeditor import QEditor
-from options import OptionsPanel
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -21,7 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__(parent=parent)
         self.dir = Path(str(__file__)).parent
         self.styled = open(f"{self.dir.joinpath('style.css')}").read()
-        self.pad = SamplePlayer()
+        self.pad = SamplePlayer(self)
         
         
         self.app = self.application = application
@@ -227,7 +226,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.op_group = QGroupBox()
         self.op_group.setLayout(self.op_glay)
         self.refresh_midi.clicked.connect(self.set_midilist_items)
-      
+        self.midilist.selectionModel().selectionChanged.connect(self.pad.items_selected)
+
     def show_status_bar(self):
         if self.hide_status_bar_checkbox.isChecked():
             self.statusBar().hide()
