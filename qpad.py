@@ -21,6 +21,7 @@ class QPad(QtWidgets.QLabel):
         self.h_pen = QtGui.QPen(self.h_brush, 1, QtCore.Qt.SolidLine,QtCore.Qt.RoundCap)
         self.rect = QtCore.QRect(10,10,400,400)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
+        #self.setAttribute(QtCore.Qt.WA_InputMethodTransparent)
 
     def paintEvent(self, event: QtGui.QPaintEvent):
         super().paintEvent(event)
@@ -82,7 +83,7 @@ class QPad(QtWidgets.QLabel):
         self.app.statusBar().showMessage(f"Sample {Path(next(iter(_files))).name} assigned to Pad n°{self.index}")
 
     def mousePressEvent(self, e):
-        if self.app.option_window.show_key_editor.isChecked():
+        if self.app.show_key_editor.isChecked():
             self.editing = True
         self.pressed_it()
         #self.app.w_table.clearSelection()
@@ -99,7 +100,7 @@ class QPad(QtWidgets.QLabel):
         is_modifier_key = ( e.modifiers() & (QtCore.Qt.ShiftModifier | QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier)
             and not e.isAutoRepeat()
         )
-        if self.app.option_window.show_key_editor.isChecked() and not is_modifier_key :
+        if self.app.show_key_editor.isChecked() and not is_modifier_key :
             self.app.keymap_map[f"{self.index}"].append(str(e.key()))
             #self.app.edi.labels[f"label_{self.index}"].setText(key)
             self.app.edi.update_labels()

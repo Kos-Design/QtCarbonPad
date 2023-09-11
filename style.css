@@ -6,14 +6,7 @@ QTableWidget {
     padding: 0px;
     margin: 0px
 }
-QWidget {
-    background-color: rgba(10, 200, 10, 0);
-    background: rgb(10, 200, 10); 
-    background-repeat: no-repeat;
-    border:0px none;
-    padding: 0px;
-    margin: 0px
-}
+
 QLabel[keymap="on"]{
     color: white;
 }

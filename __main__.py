@@ -12,6 +12,7 @@ class CarbonPad:
         self.pyside_app = QApplication(sys.argv)
         self.main_window = MainWindow(application=self)
        
+
     def run(self):
         self.main_window.show()
         return (self.pyside_app.exec_())
