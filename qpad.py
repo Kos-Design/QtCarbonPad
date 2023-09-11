@@ -91,9 +91,14 @@ class QPad(QtWidgets.QLabel):
     def pressed_it(self):
         self.app.pad.playlesoundi(self.index)
         self.setPixmap(self.app.pixmaps_off[self.index])
-    
+        if self.app.activate_midi_out.isChecked() :
+            self.app.pad.send_midi_on_out(self.index)
+
     def unpressed_it(self):
         self.setPixmap(self.app.pixmaps_on[self.index])
+        if self.app.activate_midi_out.isChecked() :
+            self.app.pad.send_midi_off_out(self.index)
+
     """
     def keyPressEvent(self, e):
         key = QtGui.QKeySequence(e.key()).toString()

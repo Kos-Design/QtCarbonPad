@@ -199,8 +199,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.placeholder_0 = QtWidgets.QLabel("")
         self.channel_label = QtWidgets.QLabel("Midi Channel: ")
         self.refresh_midi = QPushButton("Refresh")
-        self.midilist_model = QStandardItemModel()
-        self.midilist.setModel(self.midilist_model)
+        self.midilist_in_model = QStandardItemModel()
+        self.midilist.setModel(self.midilist_in_model)
+        self.midilist_out_model = QStandardItemModel()
+        self.midilist_out.setModel(self.midilist_out_model)
         self.activate_midi_out = QCheckBox("Send Midi Out")
         self.show_key_editor = QCheckBox("Show Keymap Editor")
         self.show_key_editor.stateChanged.connect(self.key_editor)
@@ -227,6 +229,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.op_group.setLayout(self.op_glay)
         self.refresh_midi.clicked.connect(self.set_midilist_items)
         self.midilist.selectionModel().selectionChanged.connect(self.pad.items_selected)
+        self.midilist_out.selectionModel().selectionChanged.connect(self.pad.out_device_selected)
 
     def show_status_bar(self):
         if self.hide_status_bar_checkbox.isChecked():
@@ -242,8 +245,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pad.init_pygame()
         self.midilist.model().clear()
         for device in self.pad.allinputdevices:
-            self.midilist_model.appendRow(QStandardItem(' '.join([str(x).strip("b'") for x in device])))
+            self.midilist_in_model.appendRow(QStandardItem(' '.join([str(x).strip("b'") for x in device])))
         self.midilist.update()
+        self.set_midi_out_items()
+    
+    def set_midi_out_items(self):
+        #self.pad.init_pygame()
+        self.midilist_out.model().clear()
+        for device in self.pad.alloutputdevices:
+            self.midilist_out_model.appendRow(QStandardItem(' '.join([str(x).strip("b'") for x in device])))
+        self.midilist_out.update()    
 
     def key_editor(self):
         self.set_blur([self.w_table,],15*int(self.show_key_editor.isChecked()))
@@ -259,8 +270,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.w_table.update()
     
- 
-          
     def save_bank(self):
         dialog = QFileDialog()
         dialog.setDefaultSuffix(".pls")

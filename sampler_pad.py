@@ -20,7 +20,7 @@ class SamplePlayer():
         self.lesplayers = []
         self.lasoundbank = []
         self.currentmididevice = 0
-        
+        self.midi_out = None
         try:
             self.lesfilnames = [str(x.name) for x in Path(self.audiosamplesfolder).glob("*.*")]
             self.lesfilnames.sort()
@@ -53,10 +53,14 @@ class SamplePlayer():
     def listoutdevices(self):
         self.all_devices = []
         self.allinputdevices = []
+        self.alloutputdevices = []
         for n in range(pygame.midi.get_count()):
             self.all_devices.append(pygame.midi.get_device_info(n))
             if pygame.midi.get_device_info(n)[2] == 1:
                 self.allinputdevices.append(pygame.midi.get_device_info(n))
+            elif pygame.midi.get_device_info(n)[3] == 1:
+                self.alloutputdevices.append(pygame.midi.get_device_info(n))
+
 
     def print_devices(self):
         for n in range(pygame.midi.get_count()):
@@ -67,9 +71,7 @@ class SamplePlayer():
         return notes[number % 12]
 
     def readInput(self,input_device):
-        
-        print("reading_input")
-        clock = pygame.time.Clock()
+        #clock = pygame.time.Clock()
         if input_device.poll():
             event = input_device.read(1)[0]
             data = event[0]
@@ -78,7 +80,6 @@ class SamplePlayer():
             note_number = data[1]
             velocity = data[2]
             if lemessagemidi == 144:
-
                 if velocity > 0:
                     nodulo = (note_number + 4) % 16
                     for i in range(0, 16):
@@ -115,10 +116,23 @@ class SamplePlayer():
         except(NameError):
             pass
 
+    def out_device_selected(self,event):
+        pygame.midi.quit()
+        pygame.midi.init()
+        device = event.indexes()[0].row()
+        for out_device in self.all_devices:
+            if out_device == self.alloutputdevices[device]:
+                self.midi_out = pygame.midi.Output(self.all_devices.index(out_device))
+               
+    def send_midi_on_out(self,index):
+        self.midi_out.note_on(64+index, 64, 0)
+    
+    def send_midi_off_out(self,index):
+        self.midi_out.note_off(64+index, 0, 0)
+     
     def items_selected(self,event):
         pygame.midi.quit()
         pygame.midi.init()
-
         """ handle item selected event
         """
         selected_indices = event.indexes()[0].row()
