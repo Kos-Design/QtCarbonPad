@@ -257,7 +257,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.set_midi_out_items()
     
     def set_midi_out_items(self):
-        #self.pad.init_pygame()
         self.midilist_out.model().clear()
         for device in self.pad.out_devices:
             self.midilist_out_model.appendRow(QStandardItem(' '.join([str(x).strip("b'") for x in device])))
