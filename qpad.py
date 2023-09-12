@@ -79,8 +79,9 @@ class QPad(QtWidgets.QLabel):
         """ 
         event.setDropAction(QtCore.Qt.CopyAction)
         _files = [file.toLocalFile() for file in event.mimeData().urls()]
-        self.app.pad.set_sample(_files,self.index)  
-        self.app.statusBar().showMessage(f"Sample {Path(next(iter(_files))).name} assigned to Pad n°{self.index}")
+        self.app.pad.set_sample(_files,self.index) 
+        if not self.app.hide_status_bar_checkbox.isChecked():
+            self.app.statusBar().showMessage(f"Sample {Path(next(iter(_files))).name} assigned to Pad n°{self.index}")
 
     def mousePressEvent(self, e):
         if self.app.show_key_editor.isChecked():
@@ -89,7 +90,7 @@ class QPad(QtWidgets.QLabel):
         #self.app.w_table.clearSelection()
     
     def pressed_it(self):
-        self.app.pad.playlesoundi(self.index)
+        self.app.pad.play_sample(self.index)
         self.setPixmap(self.app.pixmaps_off[self.index])
         if self.app.activate_midi_out.isChecked() :
             self.app.pad.send_midi_on_out(self.index)
@@ -99,19 +100,6 @@ class QPad(QtWidgets.QLabel):
         if self.app.activate_midi_out.isChecked() :
             self.app.pad.send_midi_off_out(self.index)
 
-    """
-    def keyPressEvent(self, e):
-        key = QtGui.QKeySequence(e.key()).toString()
-        is_modifier_key = ( e.modifiers() & (QtCore.Qt.ShiftModifier | QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier)
-            and not e.isAutoRepeat()
-        )
-        if self.app.show_key_editor.isChecked() and not is_modifier_key :
-            self.app.keymap_map[f"{self.index}"].append(str(e.key()))
-            #self.app.edi.labels[f"label_{self.index}"].setText(key)
-            self.app.edi.update_labels()
-            #self.releaseKeyboard()
-            #self.app.grabKeyboard()
-    """
     def mouseReleaseEvent(self, e):
         self.unpressed_it()
     

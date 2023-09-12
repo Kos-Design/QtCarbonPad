@@ -14,163 +14,110 @@ class SamplePlayer():
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.mixer.init()
         self.dir = Path(__file__).parent
-        self.allinputdevices = []
+        self.in_devices = []
         self.my_input = None
         self.audiosamplesfolder = f"{self.dir.joinpath('soundkit')}"
-        self.lesplayers = []
+        self.samplers = []
         self.lasoundbank = []
         self.currentmididevice = 0
         self.midi_out = None
         try:
-            self.lesfilnames = [str(x.name) for x in Path(self.audiosamplesfolder).glob("*.*")]
-            self.lesfilnames.sort()
-            
+            self.samples_files = [str(x.name) for x in Path(self.audiosamplesfolder).glob("*.*")]
+            self.samples_files.sort()
             self.load_soundbank()
         except FileNotFoundError:
-            self.lesfilnames = list(range(16))
-            print("Soundbank not found")
-
+            self.samples_files = list(range(16))
+            if not self.app.hide_status_bar_checkbox.isChecked():
+                self.app.statusBar().showMessage(f"Error loading content of {self.audiosamplesfolder}")
+                   
         self.init_pygame()
-       
-        #self.getsecondtinput()
 
     def init_pygame(self):
         if pygame.midi.get_init() :
             pygame.midi.quit()
         pygame.midi.init()
-        self.listoutdevices()
-        #self.print_devices()
+        self.list_midi_devices()
 
     def load_soundbank(self):
         for i in range(0, 16):
-            self.lesfilnames[i] = str(Path(self.audiosamplesfolder).joinpath(self.lesfilnames[i]))
-            self.lesplayers.append(pygame.mixer.Sound(self.lesfilnames[i]))
+            self.samples_files[i] = str(Path(self.audiosamplesfolder).joinpath(self.samples_files[i]))
+            self.samplers.append(pygame.mixer.Sound(self.samples_files[i]))
 
     def set_sample(self,samples,i):
-        self.lesfilnames[i] = str(next(iter(samples)))
-        self.lesplayers[i] = pygame.mixer.Sound(str(next(iter(samples))))
+        self.samples_files[i] = str(next(iter(samples)))
+        self.samplers[i] = pygame.mixer.Sound(str(next(iter(samples))))
 
-    def listoutdevices(self):
+    def list_midi_devices(self):
         self.all_devices = []
-        self.allinputdevices = []
-        self.alloutputdevices = []
+        self.in_devices = []
+        self.out_devices = []
         for n in range(pygame.midi.get_count()):
             self.all_devices.append(pygame.midi.get_device_info(n))
             if pygame.midi.get_device_info(n)[2] == 1:
-                self.allinputdevices.append(pygame.midi.get_device_info(n))
+                self.in_devices.append(pygame.midi.get_device_info(n))
             elif pygame.midi.get_device_info(n)[3] == 1:
-                self.alloutputdevices.append(pygame.midi.get_device_info(n))
-
-
-    def print_devices(self):
-        for n in range(pygame.midi.get_count()):
-            print(n, pygame.midi.get_device_info(n))
+                self.out_devices.append(pygame.midi.get_device_info(n))
 
     def number_to_note(self,number):
         notes = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b']
         return notes[number % 12]
 
-    def readInput(self,input_device):
+    def listen_midi(self,input_device):
         #clock = pygame.time.Clock()
         if input_device.poll():
-            event = input_device.read(1)[0]
-            data = event[0]
-            lemessagemidi, channel = rtmidi2.splitchannel(data[0])
-            timestamp = event[1]
+            data, timestamp = input_device.read(1)[0]
+            midi_msg, channel = rtmidi2.splitchannel(data[0])
             note_number = data[1]
             velocity = data[2]
-            if lemessagemidi == 144:
-                if velocity > 0:
-                    nodulo = (note_number + 4) % 16
-                    for i in range(0, 16):
-                        if nodulo == i:
-                            self.app.buttons[i].pressed_it()
+            for i in range(0, 16):
+                if (note_number + 4) % 16 == i and midi_msg == 144 :
+                    if velocity > 0:
+                        self.app.buttons[i].pressed_it()
+                        if not self.app.hide_status_bar_checkbox.isChecked():
+                            self.app.statusBar().showMessage(f"Sending Midi {(self.number_to_note(note_number), velocity)}")
+                    if velocity == 0:
+                        self.app.buttons[i].unpressed_it()
+        if self.app.activate_midi_in.isChecked():
+            QtCore.QTimer.singleShot(10, lambda: self.rearm_midi_listener())
 
-                    print(self.number_to_note(note_number), velocity)
-                if velocity == 0:
-                    nodulo = (note_number + 4) % 16
+    def play_sample(self, i):
+        self.samplers[i].stop()
+        self.samplers[i].play()
 
-                    for i in range(0, 16):
-                        if nodulo == i:
-                            self.app.buttons[i].unpressed_it()
-        QtCore.QTimer.singleShot(10, lambda: self.doreadm())
-
-    def getsecondtinput(self):
-        self.listoutdevices()
-        for n in range(pygame.midi.get_count()):
-            if len(self.allinputdevices) > 0:
-                if pygame.midi.get_device_info(n) == self.allinputdevices[0]:
-                    self.my_input = pygame.midi.Input(n)
-
-    def playlesoundi(self, i):
-        self.lesplayers[i].stop()
-        self.lesplayers[i].play()
-
-    def loadbank(self):
+    def assign_samples(self):
         for i in range(0, 16):
-            self.lesplayers[i] = pygame.mixer.Sound(self.lesfilnames[i])
+            self.samplers[i] = pygame.mixer.Sound(self.samples_files[i])
 
-    def doreadm(self):
-        try:
-            self.readInput(self.my_input)
-        except(NameError):
-            pass
+    def rearm_midi_listener(self):
+        if self.app.activate_midi_in.isChecked():
+            try:
+                self.listen_midi(self.my_input)
+            except(NameError):
+                pass
 
     def out_device_selected(self,event):
-        pygame.midi.quit()
-        pygame.midi.init()
+        #TODO: test if midi is initialized
+        #pygame.midi.quit()
+        #pygame.midi.init()
         device = event.indexes()[0].row()
         for out_device in self.all_devices:
-            if out_device == self.alloutputdevices[device]:
+            if out_device == self.out_devices[device]:
                 self.midi_out = pygame.midi.Output(self.all_devices.index(out_device))
                
     def send_midi_on_out(self,index):
-        self.midi_out.note_on(64+index, 64, 0)
+        self.midi_out.note_on(64+index+self.app.transposer.value(), 64, 0)
     
     def send_midi_off_out(self,index):
-        self.midi_out.note_off(64+index, 0, 0)
+        self.midi_out.note_off(64+index+self.app.transposer.value(), 0, 0)
      
-    def items_selected(self,event):
+    def in_device_selected(self,event):
         pygame.midi.quit()
         pygame.midi.init()
         """ handle item selected event
         """
-        selected_indices = event.indexes()[0].row()
-        print(selected_indices)
-        #self.my_input = pygame.midi.Input(selected_indices)
-        
-        #pygame.midi.Input.close(self.my_input)
-        #.selectionModel().currentIndex().row()
+        row = event.indexes()[0].row()
         for device in self.all_devices:
-            if device == self.allinputdevices[selected_indices]:
+            if device == self.in_devices[row]:
                 self.my_input = pygame.midi.Input(self.all_devices.index(device))
-                self.readInput(self.my_input)
-        """
-        if self.currentmididevice != selected_indices:
-            self.currentmididevice = selected_indices
-        if pygame.midi.get_device_info(selected_indices)[2] == 1:
-            msg = f'You selected: {selected_indices}'
-            # print(msg)
-            # pygame.midi.Input.close(my_input)
-            if pygame.midi.get_init():
-                try:
-                    self.my_input.close()
-
-                except(NameError):
-                    pass
-            #self.my_input = pygame.midi.Input(selected_indices)
-
-            for n in range(pygame.midi.get_count()):
-                print(self.allinputdevices)
-                if len(self.allinputdevices) > 0:
-                    if pygame.midi.get_device_info(n) == self.allinputdevices[0]:
-                        self.my_input = pygame.midi.Input(n)
-                        self.readInput(self.my_input)
-                        break
-        """            
-    def defaulttofirst(event):
-        pygame.midi.quit()
-        pygame.midi.init()
-        listoutdevices()
-        getsecondtinput()
-        # print(pygame.midi.get_init())
+                self.listen_midi(self.my_input)
+                break

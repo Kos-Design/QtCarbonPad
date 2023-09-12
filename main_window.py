@@ -197,17 +197,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.midilist = QListView()
         self.midilist_out = QListView()
         self.placeholder_0 = QtWidgets.QLabel("")
-        self.channel_label = QtWidgets.QLabel("Midi Channel: ")
+        self.transpose_midi = QtWidgets.QLabel("Transpose Midi: ")
         self.refresh_midi = QPushButton("Refresh")
         self.midilist_in_model = QStandardItemModel()
         self.midilist.setModel(self.midilist_in_model)
         self.midilist_out_model = QStandardItemModel()
         self.midilist_out.setModel(self.midilist_out_model)
         self.activate_midi_out = QCheckBox("Send Midi Out")
+        self.activate_midi_in = QCheckBox("Receive Midi In")
+        self.activate_midi_in.setChecked(True)
+        self.activate_midi_in.stateChanged.connect(self.pad.rearm_midi_listener)
         self.show_key_editor = QCheckBox("Show Keymap Editor")
         self.show_key_editor.stateChanged.connect(self.key_editor)
         #self.option_window = QMainWindow(self.app)
         self.hide_status_bar_checkbox = QCheckBox("Hide Status Bar")
+        self.hide_status_bar_checkbox.setChecked(True)
         self.hide_status_bar_checkbox.stateChanged.connect(self.show_status_bar)
         self.op_glay = QGridLayout()
         self.set_midilist_items()
@@ -216,19 +220,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.op_glay.addWidget(self.midilist,0,0,2,1)
         self.op_glay.addLayout(self.op_vlay,0,1,2,1)
         self.op_glay.addWidget(self.midilist_out,0,2,2,1)
-        self.channel_selector = QSpinBox()
+        self.transposer = QSpinBox()
+        self.transposer.setMinimum(-64)
+        self.transposer.setMaximum(64)
         self.op_vlay.addWidget(self.placeholder_0)
         self.op_vlay.addWidget(self.show_key_editor)
+        self.op_vlay.addWidget(self.activate_midi_in)
         self.op_vlay.addWidget(self.activate_midi_out)
         self.op_vlay.addWidget(self.hide_status_bar_checkbox)
         self.op_vlay.addLayout(self.op_subh_lay)
-        self.op_subh_lay.addWidget(self.channel_label)
-        self.op_subh_lay.addWidget(self.channel_selector)
+        self.op_subh_lay.addWidget(self.transpose_midi)
+        self.op_subh_lay.addWidget(self.transposer)
         self.op_vlay.addWidget(self.refresh_midi)
         self.op_group = QGroupBox()
         self.op_group.setLayout(self.op_glay)
         self.refresh_midi.clicked.connect(self.set_midilist_items)
-        self.midilist.selectionModel().selectionChanged.connect(self.pad.items_selected)
+        self.midilist.selectionModel().selectionChanged.connect(self.pad.in_device_selected)
         self.midilist_out.selectionModel().selectionChanged.connect(self.pad.out_device_selected)
 
     def show_status_bar(self):
@@ -244,7 +251,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_midilist_items(self):
         self.pad.init_pygame()
         self.midilist.model().clear()
-        for device in self.pad.allinputdevices:
+        for device in self.pad.in_devices:
             self.midilist_in_model.appendRow(QStandardItem(' '.join([str(x).strip("b'") for x in device])))
         self.midilist.update()
         self.set_midi_out_items()
@@ -252,7 +259,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_midi_out_items(self):
         #self.pad.init_pygame()
         self.midilist_out.model().clear()
-        for device in self.pad.alloutputdevices:
+        for device in self.pad.out_devices:
             self.midilist_out_model.appendRow(QStandardItem(' '.join([str(x).strip("b'") for x in device])))
         self.midilist_out.update()    
 
@@ -277,7 +284,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if ".json" not in str(file):
             file += ".json"    
         with open(file, 'w') as playlist:
-            json.dump(dict(zip(range(16),self.pad.lesfilnames)), playlist,indent=4)
+            json.dump(dict(zip(range(16),self.pad.samples_files)), playlist,indent=4)
             
     def load_bank(self):
         dialog = QFileDialog()
@@ -285,8 +292,8 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog.setOption(QFileDialog.ShowDirsOnly,False)
         dialog.exec()
         with open(next(iter(dialog.selectedFiles())), 'r') as bank:
-            self.pad.lesfilnames = list(json.load(bank).values())
-            self.pad.loadbank()
+            self.pad.samples_files = list(json.load(bank).values())
+            self.pad.assign_samples()
     
     def save_keymap(self):
         dialog = QFileDialog()
@@ -305,7 +312,6 @@ class MainWindow(QtWidgets.QMainWindow):
         with open(next(iter(dialog.selectedFiles())), 'r') as mapped:
             self.keymap_map = json.load(mapped)
             self.edi.update_labels()
-            #self.pad.loadbank()
     
     def keyPressEvent(self, e):
        
@@ -329,7 +335,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.buttons[i].unpressed_it()
                          
     def show_about(self):
-        QMessageBox.information(self, "About","Written by Cosmin Planchon")
+        QMessageBox.information(self, "About","4x4 Midi Pad Sample player\nWritten by Cosmin Planchon")
 
     def show_options(self):
         self.op_group.show()
