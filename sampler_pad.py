@@ -1,18 +1,20 @@
 import json
 from pathlib import Path
-import pygame.midi
+
 from os import environ
 from PySide2 import QtCore
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-import pygame
+import pygame as sound_engine
+import pygame.midi
 import rtmidi2
 
 class SamplePlayer():
 
     def __init__(self,parent):
         self.app = parent
-        pygame.mixer.pre_init(44100, -16, 2, 2048)
-        pygame.mixer.init()
+        sound_engine.init()
+        sound_engine.mixer.pre_init(44100, -16, 2, 2048)
+        sound_engine.mixer.init()
         self.dir = Path(__file__).parent
         self.in_devices = []
         self.my_input = None
@@ -33,37 +35,37 @@ class SamplePlayer():
         self.init_pygame()
 
     def init_pygame(self):
-        if pygame.midi.get_init() :
-            pygame.midi.quit()
-        pygame.midi.init()
+        if sound_engine.midi.get_init() :
+            sound_engine.midi.quit()
+        sound_engine.midi.init()
         self.list_midi_devices()
 
     def load_soundbank(self):
         for i in range(0, 16):
             self.samples_files[i] = str(Path(self.audiosamplesfolder).joinpath(self.samples_files[i]))
-            self.samplers.append(pygame.mixer.Sound(self.samples_files[i]))
+            self.samplers.append(sound_engine.mixer.Sound(self.samples_files[i]))
 
     def set_sample(self,samples,i):
         self.samples_files[i] = str(next(iter(samples)))
-        self.samplers[i] = pygame.mixer.Sound(str(next(iter(samples))))
+        self.samplers[i] = sound_engine.mixer.Sound(str(next(iter(samples))))
 
     def list_midi_devices(self):
         self.all_devices = []
         self.in_devices = []
         self.out_devices = []
-        for n in range(pygame.midi.get_count()):
-            self.all_devices.append(pygame.midi.get_device_info(n))
-            if pygame.midi.get_device_info(n)[2] == 1:
-                self.in_devices.append(pygame.midi.get_device_info(n))
-            elif pygame.midi.get_device_info(n)[3] == 1:
-                self.out_devices.append(pygame.midi.get_device_info(n))
+        for n in range(sound_engine.midi.get_count()):
+            self.all_devices.append(sound_engine.midi.get_device_info(n))
+            if sound_engine.midi.get_device_info(n)[2] == 1:
+                self.in_devices.append(sound_engine.midi.get_device_info(n))
+            elif sound_engine.midi.get_device_info(n)[3] == 1:
+                self.out_devices.append(sound_engine.midi.get_device_info(n))
 
     def number_to_note(self,number):
         notes = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b']
         return notes[number % 12]
 
     def listen_midi(self,input_device):
-        #clock = pygame.time.Clock()
+        #clock = sound_engine.time.Clock()
         if input_device.poll():
             data, timestamp = input_device.read(1)[0]
             midi_msg, channel = rtmidi2.splitchannel(data[0])
@@ -97,7 +99,7 @@ class SamplePlayer():
 
     def assign_samples(self):
         for i in range(0, 16):
-            self.samplers[i] = pygame.mixer.Sound(self.samples_files[i])
+            self.samplers[i] = sound_engine.mixer.Sound(self.samples_files[i])
 
     def rearm_midi_listener(self):
         if self.app.activate_midi_in.isChecked():
@@ -108,12 +110,12 @@ class SamplePlayer():
 
     def out_device_selected(self,event):
         #TODO: test if midi is initialized
-        #pygame.midi.quit()
-        #pygame.midi.init()
+        #sound_engine.midi.quit()
+        #sound_engine.midi.init()
         device = event.indexes()[0].row()
         for out_device in self.all_devices:
             if out_device == self.out_devices[device]:
-                self.midi_out = pygame.midi.Output(self.all_devices.index(out_device))
+                self.midi_out = sound_engine.midi.Output(self.all_devices.index(out_device))
                
     def send_midi_on_out(self,index):
         self.midi_out.note_on(64+index+self.app.transposer.value(), 64, 0)
@@ -126,13 +128,13 @@ class SamplePlayer():
         self.midi_out.note_off(64+index+self.app.transposer.value(), 0, 0)
      
     def in_device_selected(self,event):
-        pygame.midi.quit()
-        pygame.midi.init()
+        sound_engine.midi.quit()
+        sound_engine.midi.init()
         """ handle item selected event
         """
         row = event.indexes()[0].row()
         for device in self.all_devices:
             if device == self.in_devices[row]:
-                self.my_input = pygame.midi.Input(self.all_devices.index(device))
+                self.my_input = sound_engine.midi.Input(self.all_devices.index(device))
                 self.listen_midi(self.my_input)
                 break
