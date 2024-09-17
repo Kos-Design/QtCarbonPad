@@ -95,6 +95,10 @@ class QPad(QtWidgets.QLabel):
         if self.app.activate_midi_out.isChecked() :
             self.app.pad.send_midi_on_out(self.index)
 
+    def received_ccs(self,val):
+        if self.app.activate_midi_out.isChecked() :
+            self.app.pad.send_midi_cc_out(self.index,val)
+
     def unpressed_it(self):
         self.setPixmap(self.app.pixmaps_on[self.index])
         if self.app.activate_midi_out.isChecked() :

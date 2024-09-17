@@ -77,6 +77,17 @@ class SamplePlayer():
                             self.app.statusBar().showMessage(f"Sending Midi {(self.number_to_note(note_number), velocity)}")
                     if velocity == 0:
                         self.app.buttons[i].unpressed_it()
+                
+                if (note_number + 4) % 16 == i and midi_msg == 176 :
+                    self.app.buttons[i].received_ccs(data[2])
+                        #if not self.app.hide_status_bar_checkbox.isChecked():
+                        #    self.app.statusBar().showMessage(f"Sending Midi {(self.number_to_note(note_number), velocity)}")
+                    #if velocity == 0:
+                    #    self.app.buttons[i].unpressed_it()
+                
+                if (note_number + 4) % 16 == i and midi_msg == 128 :
+                    self.app.buttons[i].unpressed_it()
+
         if self.app.activate_midi_in.isChecked():
             QtCore.QTimer.singleShot(10, lambda: self.rearm_midi_listener())
 
@@ -106,6 +117,10 @@ class SamplePlayer():
                
     def send_midi_on_out(self,index):
         self.midi_out.note_on(64+index+self.app.transposer.value(), 64, 0)
+    
+    def send_midi_cc_out(self,index,val):
+        self.midi_out.write_short(0xB0, 64+index+self.app.transposer.value(), val)
+        #self.midi_out. .note_on(64+index+self.app.transposer.value(), 64, 0)
     
     def send_midi_off_out(self,index):
         self.midi_out.note_off(64+index+self.app.transposer.value(), 0, 0)
