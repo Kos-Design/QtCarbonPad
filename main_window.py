@@ -5,7 +5,7 @@ Main window of the Sound Pad.
 
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import QMenuBar, QLabel, QSpinBox, QGridLayout, QGroupBox, QHBoxLayout,QVBoxLayout, QCheckBox, QMainWindow, QListView,QStatusBar, QWidgetAction, QComboBox, QAction, QWidget, QFileDialog, QPushButton, QVBoxLayout, QLabel, QMessageBox
-from PySide2.QtGui import QStandardItem, QIcon, QPixmap , QMouseEvent, QStandardItemModel
+from PySide2.QtGui import QStandardItem, QIcon, QPixmap , QMouseEvent, QStandardItemModel,QPalette,QColor
 import sys
 from pathlib import Path
 from sampler_pad import SamplePlayer
@@ -111,9 +111,10 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def set_the_palette(self,widgets):
         pa = QtGui.QPalette()
-        
-        #co = QtGui.QColor(0,0,0,0)
-        co = QtGui.Qt.transparent
+        palette = QPalette()
+        palette.setColor(QPalette.Background, QtGui.QColor('lightblue'))
+        co = QtGui.QColor(0,0,0,0)
+        #co = QtGui.Qt.transparent
         ba = QtGui.QBrush(co, QtCore.Qt.BrushStyle.NoBrush)
         pa.setColor(QtGui.QPalette.Highlight, co)
         pa.setColor(QtGui.QPalette.Highlight, co)
@@ -134,7 +135,7 @@ class MainWindow(QtWidgets.QMainWindow):
        
         
         for wig in widgets:
-            wig.setPalette(pa)
+            wig.setPalette(palette)
 
     def place_buttons(self):
         
