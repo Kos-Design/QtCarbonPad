@@ -29,7 +29,7 @@ class SamplePlayer():
             self.load_soundbank()
         except FileNotFoundError:
             self.samples_files = list(range(16))
-            if not self.app.hide_status_bar_checkbox.isChecked():
+            if hasattr(self.app, "hide_status_bar_checkbox") and not self.app.hide_status_bar_checkbox.isChecked():
                 self.app.statusBar().showMessage(f"Error loading content of {self.audiosamplesfolder}")
                    
         self.init_pygame()
@@ -41,11 +41,18 @@ class SamplePlayer():
         self.list_midi_devices()
 
     def load_soundbank(self):
+        if not self.samples_files or not self.samplers:
+            self.samples_files = list(Path(str(x)) for x in range(16))
+            self.samplers = list(range(16))
         for i in range(0, 16):
             self.samples_files[i] = str(Path(self.audiosamplesfolder).joinpath(self.samples_files[i]))
             self.samplers.append(sound_engine.mixer.Sound(self.samples_files[i]))
+        self.app.save_default_bank()
 
     def set_sample(self,samples,i):
+        if not self.samples_files or not self.samplers:
+            self.samples_files = list(Path(str(x)) for x in range(16))
+            self.samplers = list(range(16))
         self.samples_files[i] = str(next(iter(samples)))
         self.samplers[i] = sound_engine.mixer.Sound(str(next(iter(samples))))
 

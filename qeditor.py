@@ -28,7 +28,6 @@ class QEditor(QtWidgets.QWidget):
             self.update()
 
     def create_fields(self):
-        
         for buttons in self.parent.buttons:
             i = f"label_{buttons.index}"
             self.labels[i] = QtWidgets.QLabel("A",self)   
@@ -37,7 +36,6 @@ class QEditor(QtWidgets.QWidget):
             self.font_label.setPixelSize(40)
             self.labels[i].setFont(self.font_label)
             self.labels[i].setGeometry(140 + (172 * (buttons.index % 4)), 38 + (172 * (int(buttons.index / 4))),100,100)
-
         self.set_heavy_shadows(list(self.labels.values()))
     
     def set_heavy_shadows(self, attr_list):

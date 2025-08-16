@@ -26,60 +26,29 @@ class QPad(QtWidgets.QLabel):
     def paintEvent(self, event: QtGui.QPaintEvent):
         super().paintEvent(event)
         painter = QtGui.QPainter(self)
-        """Override method from QWidget
-
-        Paint the Pixmap into the widget
-
-        """
-        #with QtGui.QPainter(self) as painter:
         painter.setBrush(self.h_brush)
         painter.setPen(self.h_pen)
         self.rect = event.rect()
-        #painter.drawText(event.rect(),QtCore.Qt.AlignCenter,'T')
         if False :
-            #not self.app.show_key_editor.isChecked():
             painter.drawEllipse(event.rect())
         
     def dragEnterEvent(self, event):
-        """
-        Triggered when initiating a drag'n drop event.
-
-        Args:
-            event: Qt event.
-        """
-        #print(event.mimeData().formats())
         for obj in event.mimeData().urls():
             if not Path(obj.toLocalFile()).is_file():
                 event.ignore()
-        event.accept()
-        #event.ignore()
-    
-        #self.setCursor(QtCore.Qt.IBeamCursor)    
+        event.accept()  
 
     def dragMoveEvent(self, event):
-        """
-        Triggered when dragging with the mouse on the window.
-
-        Args:
-            event: Qt event.
-        """
-        #print(event.mimeData().formats())
         for obj in event.mimeData().urls():
             if not Path(obj.toLocalFile()).is_file():
                 event.ignore()
-
         event.accept()
 
     def dropEvent(self, event):
-        """
-        Triggered when dropping an element in the window.
-
-        Args:
-            event: Qt event.
-        """ 
         event.setDropAction(QtCore.Qt.CopyAction)
         _files = [file.toLocalFile() for file in event.mimeData().urls()]
-        self.app.pad.set_sample(_files,self.index) 
+        self.app.pad.set_sample(_files,self.index)
+        self.app.save_default_bank() 
         if not self.app.hide_status_bar_checkbox.isChecked():
             self.app.statusBar().showMessage(f"Sample {Path(next(iter(_files))).name} assigned to Pad n°{self.index}")
 
@@ -87,9 +56,12 @@ class QPad(QtWidgets.QLabel):
         if self.app.show_key_editor.isChecked():
             self.editing = True
         self.pressed_it()
-        #self.app.w_table.clearSelection()
     
     def pressed_it(self):
+        if not self.app.pad.samples_files:
+            return
+        if not Path(f"{self.app.pad.samples_files[self.index]}").is_file():
+            return
         self.app.pad.play_sample(self.index)
         self.setPixmap(self.app.pixmaps_off[self.index])
         if self.app.activate_midi_out.isChecked() :

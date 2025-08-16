@@ -13,6 +13,7 @@ import json
 import itertools
 from qpad import QPad
 from qeditor import QEditor
+from platformdirs import user_config_dir
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -21,8 +22,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.dir = Path(str(__file__)).parent
         self.styled = open(f"{self.dir.joinpath('style.css')}").read()
         self.pad = SamplePlayer(self)
-        
-        
         self.app = self.application = application
         self.title = "Carbonpad"
         self.setWindowTitle(self.title)
@@ -31,20 +30,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menu_height = 16
         self.mainframe = QtWidgets.QFrame(self.main_widget)
         self.mainframe.setFrameShape(QtWidgets.QFrame.NoFrame)
-
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.keymap_map = json.loads(json.dumps({str(k): [] for k in range(16)}))
-        #temp default keymap
-        try:
-            with open(f"{self.dir.joinpath('keymap.json')}", 'r') as mapped:
-                self.keymap_map = json.load(mapped)
-        except:
-            pass
-        
-        #print(self.keymap_map)
         self.layout_grid = QtWidgets.QGridLayout()
         self.layout_grid.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
-            
         self.setCentralWidget(self.main_widget)
         self.h_layout = QHBoxLayout(self.main_widget)
         self.set_background()
@@ -53,11 +42,46 @@ class MainWindow(QtWidgets.QMainWindow):
         self.edi.hide()
         self.edi.update_labels()
         self.setFixedSize(866, 688+self.menu_height)
-        
         self.edi.setGeometry(0, self.menu_height, 866, 688)
         self.setStyleSheet(self.styled)
         self.main_widget.setStyleSheet(u"background: transparent;")
-
+        self.check_config_file()
+    
+    def check_config_file(self):
+        config_dir = Path(user_config_dir('QtPads', 'Kos-Design'))
+        config_dir.mkdir(parents=True, exist_ok=True)
+        config_file = config_dir / "QtPads_config.json"
+        default_config = { "bank": "QtPads_bank", "keymap": "QtPads_keymap"}
+        if config_file.exists():
+            with config_file.open("r", encoding="utf-8") as f:
+                config = json.load(f)
+        else:
+            with config_file.open("w", encoding="utf-8") as f:
+                config = default_config
+                json.dump(default_config, f, indent=2)
+        default_bank = config_dir / f"{config['bank']}.json"
+        if default_bank.exists() and default_bank.is_file():
+            with open(f"{default_bank}", 'r') as bank:
+                self.pad.samples_files = list(json.load(bank).values())
+                self.pad.assign_samples()
+        default_keys = config_dir / f"{config['keymap']}.json"
+        if default_keys.exists() and default_keys.is_file():
+            with open(f"{default_keys}", 'r') as keymap:
+                self.keymap_map = json.load(keymap)
+                self.edi.update_labels()
+               
+    def save_default_keymap(self):
+        config_dir = Path(user_config_dir('QtPads', 'Kos-Design'))
+        default_keys = config_dir / "QtPads_keymap.json" 
+        with open(f"{default_keys}", 'w') as mapped:
+            json.dump(self.keymap_map, mapped,indent=4)
+    
+    def save_default_bank(self):
+        config_dir = Path(user_config_dir('QtPads', 'Kos-Design'))
+        default_bank = config_dir / "QtPads_bank.json" 
+        with open(f"{default_bank}", 'w') as bank:
+            json.dump(dict(zip(range(16),self.pad.samples_files)), bank,indent=4)
+            
     def set_background(self):
         self.background = QLabel()
         self.pixmap_bg = QPixmap(f"{self.dir.joinpath('themes/Carbon/bgoff.png')}")
@@ -267,14 +291,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.set_blur([self.w_table,],15*int(self.show_key_editor.isChecked()))
         if self.show_key_editor.isChecked():
             self.edi.run()
-            #self.edi.grabKeyboard()
-            
             self.edi.update()
-            
         else :
             self.edi.hide()
-            #self.edi.releaseKeyboard()
-
         self.w_table.update()
     
     def save_bank(self):
@@ -294,6 +313,7 @@ class MainWindow(QtWidgets.QMainWindow):
         with open(next(iter(dialog.selectedFiles())), 'r') as bank:
             self.pad.samples_files = list(json.load(bank).values())
             self.pad.assign_samples()
+        self.save_default_bank()
     
     def save_keymap(self):
         dialog = QFileDialog()
@@ -312,9 +332,9 @@ class MainWindow(QtWidgets.QMainWindow):
         with open(next(iter(dialog.selectedFiles())), 'r') as mapped:
             self.keymap_map = json.load(mapped)
             self.edi.update_labels()
+        self.save_default_keymap()
     
     def keyPressEvent(self, e):
-       
         is_modifier_key = ( e.modifiers() & (QtCore.Qt.ShiftModifier | QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier)
             and not e.isAutoRepeat()
         )
@@ -323,11 +343,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 if not is_modifier_key :
                     self.keymap_map[f"{butt.index}"].append(str(e.key()))
                     self.edi.update_labels()
+                    self.save_default_keymap()
                 butt.editing = False 
             if str(e.key()) in self.keymap_map[f"{butt.index}"] :
                 butt.pressed_it()
-                #TODO: check if no break for multi assign affects lattency increase ?
-                #break
                   
     def keyReleaseEvent(self, e):
         for i in range(16):
