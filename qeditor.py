@@ -47,5 +47,4 @@ class QEditor(QtWidgets.QWidget):
             attr.setGraphicsEffect(effect)
 
     def sizeHint(self):
-        #print("default sizeHint: ", super(QEditor, self).sizeHint())
         return QtCore.QSize(866, 688+self.parent.menu.height())

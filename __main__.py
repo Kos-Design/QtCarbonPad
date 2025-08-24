@@ -8,13 +8,10 @@ from main_window import MainWindow
 class CarbonPad:
 
     def __init__(self, args):
-        #print(args[1])
-        #print(args[1])
         QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
         self.pyside_app = QApplication(sys.argv)
         self.main_window = MainWindow(application=self)
         self.post_init(args)
-       
 
     def run(self):
         self.main_window.show()
@@ -29,13 +26,10 @@ class CarbonPad:
                 selection_model.select(third_index, selection_model.Select | selection_model.Rows)
                 # Update the current selection (optional, but triggers a change event too)
                 selection_model.setCurrentIndex(third_index, selection_model.Select)
-
                 second_index = self.main_window.midilist.model().index(1, 0)
                 selection_model_2 = self.main_window.midilist_out.selectionModel()
-                #selection_model_2.select(second_index, selection_model_2.Select | selection_model_2.Rows)
                 selection_model_2.setCurrentIndex(second_index, selection_model_2.Select)
                 self.main_window.activate_midi_out.toggle()
-                print("customized")
 
 
 if __name__ == '__main__':

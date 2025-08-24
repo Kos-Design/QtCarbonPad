@@ -341,7 +341,10 @@ class MainWindow(QtWidgets.QMainWindow):
         for butt in self.buttons:
             if butt.editing:
                 if not is_modifier_key :
-                    self.keymap_map[f"{butt.index}"].append(str(e.key()))
+                    if str(e.key()) in self.keymap_map[f"{butt.index}"] :
+                        self.keymap_map[f"{butt.index}"].pop(self.keymap_map[f"{butt.index}"].index(str(e.key())))
+                    else:
+                        self.keymap_map[f"{butt.index}"].append(str(e.key()))
                     self.edi.update_labels()
                     self.save_default_keymap()
                 butt.editing = False 
